@@ -1,0 +1,41 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<script type="module">
+
+
+const setReactive = (data, inp, name) => {
+    const proxy = new Proxy(data, {
+        set(target, prop, val) {
+            target[prop] = val;
+            if (prop == name) {
+                inp.value = val;
+            }
+            return true;
+        }
+    });
+    inp.value = data[name];
+    inp.onchange = () => {
+        data[name] = inp.value;
+    };
+    inp.onkeyup = () => {
+        data[name] = inp.value;
+    };
+    return proxy;
+};
+window.onload = () => {
+    const odata = {
+        name: "abc"
+    };
+
+    const data = setReactive(odata, t1, "name");
+    data.name = "def";
+    setInterval(() => {
+        console.log(data.name);
+        data.name = new Date().getTime();
+    }, 1000);
+};
+</script>
+</head>
+<body>
+<input type=text id=t1>
+</body>
+</html>

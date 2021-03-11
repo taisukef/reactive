@@ -1,0 +1,51 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<script type="module">
+import { sleep } from "https://js.sabae.cc/sleep.js";
+
+const createReactiveData = (name, inp) => {
+    const data = {};
+    // inputが変更されたらデータに反映
+    inp.onchange = inp.onkeyup = () => {
+        data[name] = inp.value;
+    };
+    // dataが変更されたことをProxyを使って検知してinputに反映
+    const proxy = new Proxy(data, {
+        set(target, prop, val) {
+            target[prop] = val;
+            if (prop == name) {
+                inp.value = val;
+            }
+            return true;
+        }
+    });
+    return proxy;
+};
+
+window.onload = async () => {
+    // 入力コンポーネントt1とリアクティブな関係なデータ
+    const data = createReactiveData("name", t1);
+
+    // 代入するとinputに反映される (data → input)
+    data.name = "初期データ";
+
+    // 1秒後、データを変更 (data → input)
+    await sleep(1000);
+    data.name = "1秒後の変更";
+
+    // 3秒置きにデータを表示 (input → data)
+    await sleep(1000);
+    data.name = "編集してみて！";
+    for (;;) {
+        await sleep(3000);
+        // データも変わってることが確認できる
+        view.textContent = data.name;
+    }
+};
+</script>
+</head>
+<body>
+    <h1>リアルティブなテキスト入力テスト</h1>
+    <input type=text id=t1>
+    <div id=view></div>
+</body>
+</html>
